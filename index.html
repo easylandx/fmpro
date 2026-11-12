@@ -670,6 +670,9 @@ function loop(now){analyse(now);draw(now);requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
 
 applyLang();
+// Custom station links open directly on the radio screen and begin playback.
+// The generic app URL keeps the start overlay and never auto-plays.
+if(LINK)powerOn(true);
 loadStations();
 
 /* ============ PWA ============ */

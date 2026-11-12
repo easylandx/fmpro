@@ -76,6 +76,8 @@ button.b.on{background:var(--neon);color:#021018;text-shadow:none;box-shadow:0 0
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 10px}
 .chip{background:#031020;border:1px solid #19d3ff88;color:var(--neon);border-radius:20px;padding:7px 13px;font:inherit;font-size:13px;cursor:pointer;text-shadow:0 0 5px #19d3ff88}
 .chip.on{background:var(--neon);color:#021018;border-color:var(--neon);box-shadow:0 0 14px var(--neon);text-shadow:none}
+.chip.wa{background:#25D366;border-color:#25D366;color:#fff;box-shadow:0 0 12px #25D36688;text-shadow:none}
+.chip.wa:hover,.chip.wa:active{background:#1ebe5b;border-color:#1ebe5b}
 select,input[type=search]{background:#031020;border:1px solid #19d3ff88;color:var(--hi);border-radius:10px;padding:9px 10px;font:inherit;font-size:14px;min-width:0;box-shadow:inset 0 0 8px #19d3ff22}
 select:focus,input[type=search]:focus{outline:none;border-color:var(--neon);box-shadow:0 0 12px #19d3ff88}
 .row{display:flex;gap:8px;flex-wrap:wrap}
@@ -202,8 +204,8 @@ const CLASSICAL=[
  ['WQXR (US)','https://stream.wqxr.org/wqxr','classical','US'],
  ['BR-Klassik (Germany)','https://dispatcher.rndfnk.com/br/brklassik/live/mp3/high','classical','DE'],
  ['Radio Swiss Classic (Switzerland)','https://stream.srg-ssr.ch/m/rsc_de/mp3_128','classical','CH'],
- ['Radio Classica (Spain)','https://radioclasica.rtveradio.cires21.com/radioclasica.mp3','classical','ES']
-].map(a=>({name:a[0],url:a[1],tag:a[2],cc:a[3]}));
+ ['RNE - Radio Clásica','https://dispatcher.rndfnk.com/crtve/rnerc/main/mp3/high','classical','ES',98.8,['https://crtve-ice-edge-2002-fra-eco-cdn.cast.addradio.de/crtve/rnerc/main/mp3/high']]
+].map(a=>({name:a[0],url:a[1],tag:a[2],cc:a[3],f:a[4],alts:a[5]||[]}));
 let firstLoad=true;
 let muted=false,playFlag=false,buffering=false,noiseOn=false,zc=0;
 
@@ -261,11 +263,14 @@ function buildCountries(){
   $('country').value=v||'';
 }
 
+const RC_URL='https://dispatcher.rndfnk.com/crtve/rnerc/main/mp3/high',RC_ALT=['https://crtve-ice-edge-2002-fra-eco-cdn.cast.addradio.de/crtve/rnerc/main/mp3/high'];
+function fixRC(s){return /^(rne\s*[-–—]?\s*)?radio\s*cl[aá]sica/i.test((s.name||'').trim())?{...s,name:'RNE - Radio Clásica',url:RC_URL,alts:RC_ALT,f:98.8,tag:s.tag||'classical',cc:'ES'}:s}
 function assign(list){
+  list=list.map(fixRC);
   if(firstLoad){const pre=[DEF,...CLASSICAL];if(LINK&&!pre.some(x=>x.url===LINK.url))pre.splice(1,0,LINK);const pu=new Set(pre.map(s=>s.url)),pn=pre.map(s=>s.name.toLowerCase().replace(/ \(.*\)$/,''));
     list=[...pre,...list.filter(s=>!pu.has(s.url)&&!pn.includes((s.name||'').trim().toLowerCase())&&!/^(bbc radio 3\b|wfmt\b)/i.test((s.name||'').trim())&&!/^classic fm( \(uk\)| uk)?$/i.test((s.name||'').trim()))].map(s=>({...s}));}
   const seen=new Set();
-  stations=list.filter(s=>s.url&&s.url.startsWith('https')&&!seen.has(s.name.toLowerCase())&&seen.add(s.name.toLowerCase())).slice(0,60);
+  stations=list.filter(s=>s.url&&s.url.startsWith('https')&&!seen.has(s.name.toLowerCase())&&seen.add(s.name.toLowerCase())&&(!s.f||!seen.has('f'+s.f)&&seen.add('f'+s.f))).slice(0,60);
   const n=stations.length;
   if(firstLoad)START=LINK?stations.findIndex(x=>x.url===LINK.url):-1;
   stations.forEach((s,i)=>s.pos=n>1?(i+.5)/n:.5);
@@ -350,6 +355,8 @@ aC.addEventListener('error',()=>{
 });
 aP.addEventListener('error',()=>{
   if(audio!==aP||!powered||cur<0)return;
+  const s0=stations[cur],nx=s0&&(s0.alts||[])[s0.ai|0];
+  if(nx){s0.ai=(s0.ai|0)+1;s0.url=nx;delete s0.cors;playStream(s0);return}
   $('status').textContent=t('fail');
   setTimeout(()=>{if(aP.error&&audio===aP)step(1)},1500);
 });

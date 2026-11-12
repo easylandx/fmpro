@@ -113,6 +113,11 @@ header{flex-wrap:wrap}
 @media(max-width:640px){.tb{order:3;flex:1 0 100%;justify-content:space-around}}
 
 header{position:sticky;top:0;z-index:40;margin:0 calc(-1*clamp(14px,4vw,28px));padding:max(8px,env(safe-area-inset-top)) clamp(14px,4vw,28px) 10px;background:linear-gradient(#02060ff2 75%,#02060f00);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+
+.song{margin-top:2px;min-height:1.5em;font-size:clamp(13px,3.6vw,16px);color:var(--neon);text-shadow:0 0 8px #19d3ff99;overflow:hidden;white-space:nowrap;position:relative}
+.song .mq{display:inline-block;padding-left:0;animation:songmq var(--d,14s) linear infinite}
+.song .mq span{padding-right:3em}
+@keyframes songmq{to{transform:translateX(-50%)}}
 </style>
 </head>
 <body>
@@ -155,6 +160,7 @@ header{position:sticky;top:0;z-index:40;margin:0 calc(-1*clamp(14px,4vw,28px));p
         </div>
       </div>
       <div class="name" id="name">...</div>
+      <div class="song" id="song" aria-live="polite"></div>
       <div class="meta" id="meta"></div>
       <div class="dial">
         <div class="ticks"></div>
@@ -635,7 +641,8 @@ function draw(now){
   glowText('MHz',492+fw+8,438,15,NEON,'left',8);
   const nm=$('name').textContent,mt=$('meta').textContent;
   marquee(nm,494,462,230,15,HI,now);
-  glowText(mt,494,478,11,'rgba(130,215,240,.95)','left',4);
+  if(song&&powered&&playFlag)marquee('\u266A '+song,494,478,230,11,HI,now);
+  else glowText(mt,494,478,11,'rgba(130,215,240,.95)','left',4);
   const nl=Math.round(vu*16);
   for(let i=0;i<16;i++){
     const on=i<nl;g.fillStyle=on?(i>=14?HI:NEON):'rgba(25,211,255,.10)';
@@ -793,6 +800,86 @@ function waShare(){
     });
   }
   setInterval(sync,150);sync();
+})();
+
+/* ============ now playing (song title) ============ */
+var song='';
+(function(){
+  const box=$('song');let key='',tok=0,timer=null;
+  function show(txt){
+    txt=(txt||'').replace(/\s+/g,' ').trim().slice(0,140);
+    if(txt===song)return;
+    song=txt;box.textContent='';
+    if(!txt)return;
+    const full='\u266A '+txt;
+    const probe=document.createElement('span');probe.textContent=full;box.appendChild(probe);
+    if(probe.scrollWidth>box.clientWidth+2){
+      box.textContent='';
+      const m=document.createElement('span');m.className='mq';
+      m.style.setProperty('--d',Math.max(10,full.length*0.45)+'s');
+      for(let i=0;i<2;i++){const p=document.createElement('span');p.textContent=full;m.appendChild(p)}
+      box.appendChild(m);
+    }
+  }
+  const SOMA={};
+  async function jget(u){const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw 0;return r.json()}
+  async function viaApi(url){
+    let m=url.match(/somafm\.com\/([a-z0-9]+)-/i);
+    if(m){
+      const d=await jget('https://somafm.com/channels.json');
+      const c=(d.channels||[]).find(c=>c.id===m[1]);
+      if(c&&c.lastPlaying)return c.lastPlaying;
+      throw 0;
+    }
+    m=url.match(/stream\.radioparadise\.com\/([a-z-]+?)-?\d*(?:\.|$|\/)/i)||url.match(/stream\.radioparadise\.com\/([a-z0-9-]+)/i);
+    if(m){
+      const n=m[1].toLowerCase(),ch=n.startsWith('mellow')?1:n.startsWith('rock')?2:n.startsWith('global')?3:0;
+      const d=await jget('https://api.radioparadise.com/api/now_playing?chan='+ch);
+      if(d&&d.title)return (d.artist?d.artist+' - ':'')+d.title;
+      throw 0;
+    }
+    throw 0;
+  }
+  async function viaIcy(url){
+    const ac=new AbortController(),to=setTimeout(()=>ac.abort(),9000);
+    try{
+      const r=await fetch(url,{headers:{'Icy-MetaData':'1'},signal:ac.signal,cache:'no-store'});
+      const mi=parseInt(r.headers.get('icy-metaint')||'0',10);
+      if(!mi||!r.body)throw 0;
+      const rd=r.body.getReader();let buf=new Uint8Array(0),need=mi+1;
+      while(true){
+        const {value,done}=await rd.read();if(done)throw 0;
+        const nb=new Uint8Array(buf.length+value.length);nb.set(buf);nb.set(value,buf.length);buf=nb;
+        if(buf.length>=need&&need===mi+1){const len=buf[mi]*16;if(len===0)throw 0;need=mi+1+len}
+        if(need>mi+1&&buf.length>=need){
+          const txt=new TextDecoder('utf-8').decode(buf.slice(mi+1,need));
+          const m=txt.match(/StreamTitle='([^]*?)';/);
+          rd.cancel();
+          if(m&&m[1].trim())return m[1];
+          throw 0;
+        }
+        if(buf.length>mi+4096+4096&&need===mi+1)throw 0;
+      }
+    }finally{clearTimeout(to);ac.abort()}
+  }
+  async function fetchSong(s,my){
+    let t=null;
+    try{t=await viaApi(s.url)}catch(e){try{t=await viaIcy(s.url)}catch(e2){}}
+    if(my!==tok)return;
+    if(t){
+      t=String(t).replace(/^\s*-\s*|\s*-\s*$/g,'');
+      if(t.toLowerCase()!==(s.name||'').toLowerCase())show(t);
+    }
+  }
+  function tick(){
+    const s=stations[cur];
+    if(!powered||!s||!playFlag){return}
+    const k=cur+'|'+s.url;
+    if(k!==key){key=k;tok++;show('');fetchSong(s,tok);clearInterval(timer);timer=setInterval(()=>{const s2=stations[cur];if(s2&&playFlag&&cur+'|'+s2.url===key)fetchSong(s2,tok)},15000)}
+  }
+  setInterval(tick,700);
+  /* clear when station changes or stops */
+  setInterval(()=>{const s=stations[cur];const k=s?cur+'|'+s.url:'';if(k!==key&&song){key='';tok++;show('')}},300);
 })();
 </script>
 </body>

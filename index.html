@@ -99,6 +99,20 @@ footer{text-align:center;font-size:12px;color:#4d86a0;padding:22px 10px 0}
 .hr{display:flex;align-items:center;gap:8px}
 #instBtn{display:none}
 #iosTip{display:none;margin:2px 4px 8px;padding:8px 14px;font-size:13px;color:var(--dim);background:#031020;border:1px solid #19d3ff55;border-radius:10px;text-align:center}
+
+/* ---------- nav transport buttons ---------- */
+header{flex-wrap:wrap}
+.tb{display:flex;gap:clamp(2px,1vw,8px);align-items:stretch;padding:6px clamp(6px,1.5vw,12px);background:linear-gradient(180deg,#041a30,#020b19);border:1px solid #19d3ff66;border-radius:12px;box-shadow:inset 0 0 18px #000,inset 0 0 10px #19d3ff22,0 0 12px #19d3ff33}
+.tb button{display:flex;flex-direction:column;align-items:center;gap:5px;background:transparent;border:0;border-radius:8px;padding:6px clamp(7px,2vw,16px) 5px;font-family:'Orbitron',sans-serif;font-weight:600;font-size:clamp(10px,2.6vw,13px);letter-spacing:1.5px;color:var(--neon);text-shadow:0 0 8px #19d3ffaa;cursor:pointer;touch-action:manipulation;min-width:0}
+.tb button i{display:block;width:7px;height:7px;border-radius:50%;background:#0a2a3a;box-shadow:inset 0 0 3px #000,0 0 0 1px #19d3ff33;transition:.15s}
+.tb button:hover{background:#19d3ff14}
+.tb button:active{transform:translateY(1px);background:#19d3ff26}
+.tb button:focus-visible{outline:2px solid var(--neon)}
+.tb button.on i{background:#fff;box-shadow:0 0 8px var(--neon),0 0 14px var(--neon)}
+.tb button.on{color:#fff;text-shadow:0 0 10px var(--neon),0 0 18px var(--neon)}
+@media(max-width:640px){.tb{order:3;flex:1 0 100%;justify-content:space-around}}
+
+header{position:sticky;top:0;z-index:40;margin:0 calc(-1*clamp(14px,4vw,28px));padding:max(8px,env(safe-area-inset-top)) clamp(14px,4vw,28px) 10px;background:linear-gradient(#02060ff2 75%,#02060f00);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 </style>
 </head>
 <body>
@@ -111,6 +125,13 @@ footer{text-align:center;font-size:12px;color:#4d86a0;padding:22px 10px 0}
 <div class="wrap">
   <header>
     <div class="brand"><h1><a href="https://easylandx.github.io/fmpro/" id="title">FMPro</a></h1><a href="https://easylandx.github.io" target="_blank" rel="noopener" id="logo" aria-label="EasyLandX"><img src="data:image/webp;base64,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" alt="EasyLandX"></a></div>
+    <nav class="tb" id="tb" aria-label="Transport controls">
+      <button type="button" data-i="0" id="tbPrev"><i></i><span>PREV</span></button>
+      <button type="button" data-i="1" id="tbPlay"><i></i><span>PLAY</span></button>
+      <button type="button" data-i="2" id="tbNext"><i></i><span>NEXT</span></button>
+      <button type="button" data-i="3" id="tbScan"><i></i><span>SCAN</span></button>
+      <button type="button" data-i="4" id="tbMute"><i></i><span>MUTE</span></button>
+    </nav>
     <div class="hr"><button class="lang" id="instBtn" type="button">Install App</button><button class="lang" id="langBtn">ES</button></div>
   </header>
   <div id="iosTip"></div>
@@ -322,7 +343,7 @@ function tuneTo(i,move){
   $('name').textContent=s.name;
   $('meta').textContent=[s.tag,s.cc].filter(Boolean).join(' / ');
   document.querySelectorAll('.st').forEach((e,k)=>e.classList.toggle('cur',k===i));
-  const el=document.querySelectorAll('.st')[i];if(el)el.scrollIntoView({block:'nearest'});
+  const el=document.querySelectorAll('.st')[i];if(el){const L=$('list'),t0=el.offsetTop-L.offsetTop,b0=t0+el.offsetHeight;if(t0<L.scrollTop)L.scrollTop=t0;else if(b0>L.scrollTop+L.clientHeight)L.scrollTop=b0-L.clientHeight}
   playStream(s);
 }
 function preselect(i){
@@ -748,6 +769,31 @@ function waShare(){
   try{if(w)w.opener=null}catch(e){}
   if(!w)location.href='https://web.whatsapp.com/send?text='+enc;
 }
+
+/* ============ nav transport buttons ============ */
+(function(){
+  const btns=[...document.querySelectorAll('#tb button')];
+  const keys=['b_prev','b_play','b_next','b_scan','b_mute'];
+  btns.forEach(b=>{b.addEventListener('mousedown',e=>e.preventDefault());b.addEventListener('click',()=>{
+    const i=+b.dataset.i;
+    if(!powered){powerOn();return}
+    pressed[i]=performance.now()+220;BT[i].f();sync();
+  })});
+  function sync(){
+    btns.forEach((b,i)=>{
+      const txt=(T[lang][keys[i]]||'');
+      let label=txt;
+      if(i===3&&scanning&&T[lang].scanOn)label=T[lang].scanOn;
+      if(i===4&&muted&&T[lang].unmute)label=T[lang].unmute;
+      if(i===1)label=(powered&&playFlag)?'||':txt;
+      const sp=b.firstElementChild.nextElementSibling;
+      if(sp.textContent!==label)sp.textContent=label;
+      b.classList.toggle('on',!!BT[i].lit());
+      b.setAttribute('aria-label',txt);
+    });
+  }
+  setInterval(sync,150);sync();
+})();
 </script>
 </body>
 </html>

@@ -94,6 +94,7 @@ footer{text-align:center;font-size:12px;color:#4d86a0;padding:22px 10px 0}
 #power h2{font-family:'Orbitron',sans-serif;color:var(--neon);font-size:clamp(26px,8vw,44px);margin:0;letter-spacing:4px;text-shadow:var(--glow)}
 #power p{color:var(--hi);text-shadow:0 0 6px #000,0 0 14px #000,0 0 22px #000}
 #power h2{text-shadow:0 0 8px #000,0 0 18px #000,var(--glow)}
+#power{cursor:pointer}
 #power button{background:#05182c;color:var(--neon);border:2px solid var(--neon);border-radius:50px;padding:18px 44px;font:inherit;font-size:22px;cursor:pointer;box-shadow:0 0 30px #19d3ff99,inset 0 0 18px #19d3ff44;text-shadow:0 0 10px var(--neon)}
 .hr{display:flex;align-items:center;gap:8px}
 #instBtn{display:none}
@@ -103,7 +104,7 @@ footer{text-align:center;font-size:12px;color:#4d86a0;padding:22px 10px 0}
 <body>
 <div id="power">
   <h2>FMPro</h2>
-  <p id="pTxt">Tap to switch on and start listening</p>
+  <p id="pTxt">Tap anywhere to start</p>
   <button id="pBtn">ON</button>
 </div>
 
@@ -167,9 +168,9 @@ footer{text-align:center;font-size:12px;color:#4d86a0;padding:22px 10px 0}
 
 <script>
 const T={
- en:{wa:'Share on WhatsApp',shareHead:'Listen on FMPro easylandx.github.io/tapepro',copied:'Message copied — press Ctrl+V in WhatsApp',copiedImg:'Image copied — choose a chat, then press Ctrl+V to add it',on:'Tap to switch on and start listening',search:'Search station...',world:'Worldwide',scan:'AUTO SCAN',scanOn:'SCANNING',load:'Loading stations...',tuned:'Tuned',noise:'Between stations...',fail:'Stream unavailable, moving on...',none:'No stations found, showing built-in list.',all:'All',foot:'Streams by Radio-Browser.info, the open community radio database.',ok:'stations loaded',mute:'MUTE',unmute:'MUTED',
+ en:{wa:'Share on WhatsApp',shareHead:'Listen on FMPro easylandx.github.io/tapepro',copied:'Message copied — press Ctrl+V in WhatsApp',copiedImg:'Image copied — choose a chat, then press Ctrl+V to add it',on:'Tap anywhere to start',search:'Search station...',world:'Worldwide',scan:'AUTO SCAN',scanOn:'SCANNING',load:'Loading stations...',tuned:'Tuned',noise:'Between stations...',fail:'Stream unavailable, moving on...',none:'No stations found, showing built-in list.',all:'All',foot:'Streams by Radio-Browser.info, the open community radio database.',ok:'stations loaded',mute:'MUTE',unmute:'MUTED',
   b_prev:'PREV',b_play:'PLAY',b_next:'NEXT',b_scan:'SCAN',b_mute:'MUTE',b_vm:'VOL-',b_vp:'VOL+',b_genre:'GENRE',b_region:'REGION',b_lang:'EN/ES',k_tune:'TUNING',k_vol:'VOLUME',m_level:'LEVEL',m_tune:'TUNE',f_stereo:'STEREO',f_scan:'SCAN',f_mute:'MUTE',f_afc:'AFC'},
- es:{wa:'Compartir por WhatsApp',shareHead:'Escucha en FMPro easylandx.github.io/tapepro',copied:'Mensaje copiado: pulsa Ctrl+V en WhatsApp',copiedImg:'Imagen copiada: elige un chat y pulsa Ctrl+V para añadirla',on:'Toca para encender y escuchar',search:'Buscar emisora...',world:'Todo el mundo',scan:'ESCANEO AUTO',scanOn:'ESCANEANDO',load:'Cargando emisoras...',tuned:'Sintonizada',noise:'Entre emisoras...',fail:'Emisora no disponible, siguiente...',none:'No hay emisoras, se muestra la lista interna.',all:'Todas',foot:'Emisoras de Radio-Browser.info, la base de datos abierta de radios.',ok:'emisoras cargadas',mute:'MUDO',unmute:'SILENCIO',
+ es:{wa:'Compartir por WhatsApp',shareHead:'Escucha en FMPro easylandx.github.io/tapepro',copied:'Mensaje copiado: pulsa Ctrl+V en WhatsApp',copiedImg:'Imagen copiada: elige un chat y pulsa Ctrl+V para añadirla',on:'Toca en cualquier parte para empezar',search:'Buscar emisora...',world:'Todo el mundo',scan:'ESCANEO AUTO',scanOn:'ESCANEANDO',load:'Cargando emisoras...',tuned:'Sintonizada',noise:'Entre emisoras...',fail:'Emisora no disponible, siguiente...',none:'No hay emisoras, se muestra la lista interna.',all:'Todas',foot:'Emisoras de Radio-Browser.info, la base de datos abierta de radios.',ok:'emisoras cargadas',mute:'MUDO',unmute:'SILENCIO',
   b_prev:'ANT',b_play:'REPR',b_next:'SIG',b_scan:'ESCAN',b_mute:'MUDO',b_vm:'VOL-',b_vp:'VOL+',b_genre:'GÉNERO',b_region:'REGIÓN',b_lang:'EN/ES',k_tune:'SINTONÍA',k_vol:'VOLUMEN',m_level:'NIVEL',m_tune:'SINT',f_stereo:'STEREO',f_scan:'ESCAN',f_mute:'MUDO',f_afc:'AFC'}
 };
 T.en.inst='Install App';T.es.inst='Instalar app';
@@ -405,7 +406,7 @@ function powerOn(auto=true){
   if(auto===false)return;
   if(stations.length)tuneTo(cur>=0?cur:(START>=0?START:0),true);else wantPlay=true;
 }
-$('pBtn').onclick=()=>powerOn();
+$('power').onclick=()=>powerOn();
 
 /* ============ equalizer bars (virtual panel) ============ */
 const NB=28,bars=new Array(NB).fill(0),tgt=new Array(NB).fill(0);
